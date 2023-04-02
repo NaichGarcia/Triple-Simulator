@@ -9,30 +9,54 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float forwardSpeed;
 
     Rigidbody playerRb;
+    GameObject basket;
     Vector3 movementVector;
 
-    bool canMove = true;
+    public bool canMove = true;
+    public bool gameOver = false;
+    public bool scoredTriple = false;
+    private float offset = 2f;
 
     // Events
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
         playerRb.AddForce(initialForceVector);
+
+        basket = GameObject.Find("Basket");
+    }
+
+    void Update()
+    {
+        CheckLoseConditions();
     }
 
     void FixedUpdate()
     {
         PlayerMovement();
+        ForwardMovement(forwardSpeed);
+    }
+
+    private void OnCollisionEnter(Collision other) 
+    {
+        if(other.gameObject.CompareTag("Table"))
+        {
+            canMove = false;
+            playerRb.AddForce(new Vector3(0f, 0f, 1f) * -2, ForceMode.Impulse);
+
+            return;
+        }
+
+        // Lose if the player collides with some obstacle
+        TriggerGameOverState();
     }
 
     private void OnTriggerEnter(Collider other) 
     {
-        // Bounce back if the player collides with an "obstacle"
-        if(other.gameObject.CompareTag("Obstacle"))
+        // Player scored a basket
+        if(other.gameObject.CompareTag("Basket"))
         {
-            canMove = false;
-            playerRb.AddForce(new Vector3(0f, 0f, 1f) * -2, ForceMode.Impulse);
-            playerRb.useGravity = true;
+            TriggerScoredTripleState();
         }
     }
 
@@ -45,15 +69,14 @@ public class PlayerController : MonoBehaviour
 
         movementVector = MouseDistanceFromBall();
         playerRb.AddForce(movementVector * ballSensitivity);
-
-        ForwardMovement(forwardSpeed);
     }
 
     // Checks the fixed distance between the ball and the mouse
     Vector3 MouseDistanceFromBall()
     {
         Vector3 rayCoordinates = RaycastToBallPlane();
-        Debug.Log("Raycast pos: " + (transform.position - rayCoordinates));
+        //Debug.Log("Raycast pos: " + (transform.position - rayCoordinates));
+
         return(rayCoordinates - transform.position);
     }
     
@@ -79,6 +102,39 @@ public class PlayerController : MonoBehaviour
     // Constant +Z movement
     void ForwardMovement(float speed)
     {
+        if(!canMove) { return; }
+
         transform.Translate(Vector3.forward * Time.deltaTime * speed);
+    }
+
+    // Check almost every lose condition
+    void CheckLoseConditions()
+    {
+        // Ball went past the basket
+        if(transform.position.z > basket.transform.position.z + offset)
+        {
+            Debug.Log("PASA");
+            TriggerGameOverState();
+        }
+    }
+
+    // Toggle lose state flags
+    void TriggerGameOverState()
+    {
+        if(gameOver || scoredTriple) { return; }
+
+        gameOver = true;
+        canMove = false;
+        playerRb.useGravity = true;
+
+        Debug.Log("Game Over");
+    }
+
+    void TriggerScoredTripleState()
+    {
+        scoredTriple = true;
+        Debug.Log("Triple!");
+
+        gameObject.SetActive(false);
     }
 }

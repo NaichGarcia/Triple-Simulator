@@ -429,8 +429,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialForceVector: {x: 150, y: 300, z: 0}
-  movementSpeedZ: 10
   ballSensitivity: 1
+  forwardSpeed: 10
+  canMove: 1
+  gameOver: 0
 --- !u!54 &1002178755
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -702,6 +704,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4394943917800088, guid: fc53f30043635b3479b6b676bd4d7f2d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2703434546670032749, guid: fc53f30043635b3479b6b676bd4d7f2d, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6422192095875604628, guid: fc53f30043635b3479b6b676bd4d7f2d, type: 3}
+      propertyPath: m_IsKinematic
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8298711223572956377, guid: fc53f30043635b3479b6b676bd4d7f2d, type: 3}
