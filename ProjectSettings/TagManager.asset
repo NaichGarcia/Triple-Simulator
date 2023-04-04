@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Basket
   - Obstacle
+  - Table
   layers:
   - Default
   - TransparentFX
