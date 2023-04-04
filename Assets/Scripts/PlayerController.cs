@@ -4,22 +4,27 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] ParticleSystem tripleParticle;
     [SerializeField] Vector3 initialForceVector;
     [SerializeField] [Range(0, 1)] float ballSensitivity;
     [SerializeField] float forwardSpeed;
 
     Rigidbody playerRb;
+    GameManager gameManager;
+    CameraController cameraController;
     GameObject basket;
     Vector3 movementVector;
 
     [HideInInspector] public bool canMove = true;
-    [HideInInspector] public bool gameOver = false;
     [HideInInspector] public bool scoredTriple = false;
     private float offset = 2f;
 
     // Events
     void Start()
     {
+        cameraController = GameObject.Find("Main Camera").GetComponent<CameraController>();
+        gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+
         playerRb = GetComponent<Rigidbody>();
         playerRb.AddForce(initialForceVector);
 
@@ -109,15 +114,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Toggle lose state flags
+    // Win trigger
+    void TriggerScoredTripleState()
+    {
+        Instantiate(tripleParticle, transform.position, tripleParticle.transform.rotation);
+        cameraController.StartMovingAway();
+        gameManager.ScoredTriple();
+        
+        gameObject.SetActive(false);
+    }
+
+    // Lose Trigger
     void TriggerGameOverState()
     {
-        if(gameOver || scoredTriple) { return; }
+        if(scoredTriple || !gameManager.isGameActive) { return; }
 
-        gameOver = true;
+        cameraController.StartMovingAway();
+        gameManager.GameOver();
         DisablePlayerInput();
-
-        Debug.Log("Game Over");
     }
 
     // Prevents the player from having control over the ball (activates gravity too)
@@ -125,14 +139,5 @@ public class PlayerController : MonoBehaviour
     {
         canMove = false;
         playerRb.useGravity = true;
-    }
-
-    // Win trigger
-    void TriggerScoredTripleState()
-    {
-        scoredTriple = true;
-        Debug.Log("Triple!");
-
-        gameObject.SetActive(false);
     }
 }
